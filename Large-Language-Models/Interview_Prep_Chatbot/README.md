@@ -30,3 +30,4 @@ Designed with modularity and extensibility in mind, this project reflects indust
 
 ## 🏗️ Project Architecture
 
+![Untitled Diagram](https://github.com/user-attachments/assets/4377c423-a258-481f-b638-4cacf65f5636)
