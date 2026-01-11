@@ -58,3 +58,7 @@ By leveraging **Large Language Models (LLMs)**, the system understands user inte
 This project showcases how **LLMs can be effectively used for real-world data engineering and analytics tasks**, highlighting practical applications of NLP, prompt engineering, and AI-assisted data querying.
 
 ---
+## Graph Flow
+<img width="376" height="901" alt="langgraph" src="https://github.com/user-attachments/assets/a857508b-11b9-45a1-b832-6d795a5b9fc1" />
+
+---
