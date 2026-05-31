@@ -132,6 +132,7 @@ This is where the RAG (Retrieval-Augmented Generation) pipeline lives.
 ---
 
 ## ⚙️ Architecture & Execution Flow
+```
 flowchart TD
     User([👤 User]) -->|Natural Language Query| App(app.py)
     App --> Prompting(prompt_creation.py)
