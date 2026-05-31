@@ -46,16 +46,20 @@ Follow the steps below to set up and run the project successfully.
 
 # Project Description
 
-Here is a comprehensive `README.md` file based on the directory structure provided in the image. 
-
-Since standard Markdown doesn't support embedding direct image files that don't exist yet, I have included a **Mermaid.js flowchart**. Mermaid is widely supported by GitHub, GitLab, and most modern Markdown viewers to render interactive architecture diagrams directly from text.
+Here is the updated `README.md` file, incorporating the specific technologies and configurations revealed in your `global_veriables.py` file. I have added a "Tech Stack" section and updated the module descriptions and the environment variable requirements to reflect your use of Pinecone, Groq (LLaMA 3), HuggingFace, and LangChain.
 
 ***
 
 ```markdown
 # QuickQuery
 
-QuickQuery is an AI-powered data extraction and querying pipeline designed to translate natural language into validated SQL queries. It integrates vector databases for semantic context retrieval, automated prompt engineering, and secure database connections to ingest, generate, and validate data queries seamlessly.
+QuickQuery is an AI-powered data extraction and querying pipeline designed to translate natural language into validated SQL queries for an e-commerce database (`ecommerce_db`). It integrates vector databases for semantic context retrieval, automated prompt engineering, and secure database connections to ingest, generate, and validate data queries seamlessly.
+
+## 🛠️ Tech Stack
+* **LLM**: Groq (Llama-3.1-8b-instant via LangChain)
+* **Vector Database**: Pinecone (AWS, us-east-1)
+* **Embeddings**: HuggingFace Sentence Transformers
+* **Database**: MySQL
 
 ## 📂 Project Directory Layout
 
@@ -72,22 +76,22 @@ QUICKQUERY/
 │
 ├── extraction_n_prompting/      # Core LLM prompt building and context retrieval
 │   ├── content_extraction.py    # Extracts relevant context required for the specific query
-│   └── prompt_creation.py       # Combines user input and context to engineer the LLM prompt
+│   └── prompt_creation.py       # Combines user input, few-shot examples, and context to engineer the LLM prompt
 │
 ├── generation/                  # LLM integration and query validation
-│   ├── generation.py            # Interfaces with the LLM to generate the SQL query
+│   ├── generation.py            # Interfaces with the Groq LLaMA model to generate the SQL query
 │   └── validation_sql.py        # Validates the generated SQL syntax and ensures execution safety
 │
 ├── quickquery/                  # Core application package or internal modules folder
 │
 ├── setup/                       # Configuration and environment setup
-│   ├── .env                     # Stores sensitive environment variables (API keys, DB credentials)
-│   └── global_veriables.py      # Stores global configuration constants used across the app
+│   ├── .env                     # Stores sensitive environment variables
+│   └── global_veriables.py      # Core initializations (Pinecone client, Groq LLM, Embeddings, Few-Shot examples)
 │
 ├── vector_store/                # Vector database configuration for semantic search (RAG)
-│   └── vector_db_config.py      # Configuration for connecting and querying the Vector DB
+│   └── vector_db_config.py      # Configuration for connecting and querying the Pinecone index (`index-quickquery`)
 │
-├── app.py                       # Main application entry point (e.g., Streamlit, FastAPI, Flask)
+├── app.py                       # Main application entry point
 └── requirements.txt             # List of Python dependencies required to run the project
 ```
 
@@ -95,34 +99,39 @@ QUICKQUERY/
 
 ### 1. Root Files
 *   **`app.py`**: The main driver script of the project. It handles user inputs and orchestrates the flow between data ingestion, prompting, generation, and displaying the final results.
-*   **`requirements.txt`**: Contains all necessary external libraries (like `langchain`, `pymysql`, `openai`, etc.) to run the project.
 
 ### 2. `data_ingestion/`
 Responsible for interacting directly with your SQL database.
-*   **`mysql_connection.py`**: Establishes the connection pool to the MySQL database.
-*   **`column_description.py`**: Pulls schema details and column descriptions, which provides the LLM with an understanding of your database structure.
+*   **`mysql_connection.py`**: Establishes the connection to `ecommerce_db`.
+*   **`column_description.py`**: Pulls schema details and column descriptions.
 
 ### 3. `vector_store/`
-*   **`vector_db_config.py`**: Manages connection and retrieval settings for your vector database. This is used to store and quickly retrieve database schema embeddings or past successful queries to give the LLM better context.
+*   **`vector_db_config.py`**: Interacts with the initialized Pinecone client to store and quickly retrieve database schema embeddings or past successful queries for semantic context.
 
 ### 4. `extraction_n_prompting/`
 This is where the RAG (Retrieval-Augmented Generation) pipeline lives.
-*   **`content_extraction.py`**: Pulls the most relevant context from the vector store or document embeddings.
-*   **`prompt_creation.py`**: Assembles the system prompt, user query, database schema context, and few-shot examples into a strict prompt ready for the LLM.
+*   **`content_extraction.py`**: Pulls the most relevant context from the vector store.
+*   **`prompt_creation.py`**: Assembles the system prompt, user query, database schema context, and the predefined `FEW_SHOT_EXAMPLES` into a strict prompt ready for the LLM.
 
 ### 5. `generation/`
-*   **`generation.py`**: Sends the crafted prompt to the Large Language Model (LLM) and receives the raw generated SQL.
-*   **`validation_sql.py`**: Parses the LLM's response, checks for SQL syntax errors, and optionally enforces read-only access (e.g., blocking `DROP` or `DELETE` statements) before execution.
+*   **`generation.py`**: Sends the crafted prompt to the Groq `llama-3.1-8b-instant` model and receives the raw generated SQL.
+*   **`validation_sql.py`**: Parses the LLM's response and checks for SQL syntax errors.
 
 ### 6. `setup/`
-*   **`global_veriables.py`**: A central configuration file holding constants like database names, API endpoints, or model parameters.
-*   **`.env`**: Holds sensitive variables locally. *(Note: Ensure this is added to your `.gitignore` file).*
+*   **`global_veriables.py`**: The central configuration hub. It validates environment variables, initializes the `Pinecone` client, sets up the HuggingFace `SentenceTransformer` embedding model, loads static `FEW_SHOT_EXAMPLES` for prompt injection, and initializes the LangChain `ChatGroq` model.
+*   **`.env`**: Holds the required sensitive variables locally. To run this project, your `.env` must include:
+    * `PINECONE_API_KEY`
+    * `EMBEDDING_MODEL`
+    * `HUGGINGFACE_API_KEY`
+    * `GROQ_API_KEY`
+    * `HOST`
+    * `DB_USER`
+    * `DATABASE_PASSWORD`
+    * `PORT`
 
 ---
 
 ## ⚙️ Architecture & Execution Flow
-
-*Note: This diagram uses Mermaid.js. If you view this README on GitHub, GitLab, or an IDE with a Markdown previewer, it will automatically render as a flowchart.*
 
 ```mermaid
 flowchart TD
@@ -131,23 +140,20 @@ flowchart TD
     
     %% Context Gathering
     Prompting <-->|Retrieve schema context| ColumnMeta(column_description.py)
-    Prompting <-->|Retrieve semantic context| VectorStore(vector_db_config.py)
-    Prompting <-->|Extract Content| Extract(extraction_n_prompting/content_extraction.py)
+    Prompting <-->|Semantic Search (SentenceTransformers)| VectorStore(Pinecone Vector DB)
+    Prompting <-->|Inject Few-Shot Examples| GlobalVars(global_veriables.py)
     
     %% Generation
     Prompting -->|Structured Prompt| Generator(generation.py)
+    Generator <-->|LangChain| LLM((Groq: LLaMA 3.1))
     Generator -->|Raw SQL Query| Validator(validation_sql.py)
     
     %% Execution
     Validator -->|Validated SQL| DBConnection(mysql_connection.py)
-    DBConnection <-->|Execute & Fetch| MySQL[(MySQL Database)]
+    DBConnection <-->|Execute & Fetch| MySQL[(ecommerce_db)]
     
     %% Results Back to User
     DBConnection -->|Query Results| App
     App -->|Formatted Output| User
 ```
 ```
-
-*(Note based on the sources: The spelling `global_veriables.py` reflects the exact spelling as seen in your directory tree.)* 
-
-Let me know if you would like me to generate a script to create this exact folder structure on your local machine!
