@@ -132,28 +132,25 @@ This is where the RAG (Retrieval-Augmented Generation) pipeline lives.
 ---
 
 ## ⚙️ Architecture & Execution Flow
-
-```mermaid
 flowchart TD
     User([👤 User]) -->|Natural Language Query| App(app.py)
     App --> Prompting(prompt_creation.py)
     
     %% Context Gathering
     Prompting <-->|Retrieve schema context| ColumnMeta(column_description.py)
-    Prompting <-->|Semantic Search (SentenceTransformers)| VectorStore(Pinecone Vector DB)
+    Prompting <-->|Semantic Search via SentenceTransformers| VectorStore(Pinecone Vector DB)
     Prompting <-->|Inject Few-Shot Examples| GlobalVars(global_veriables.py)
     
     %% Generation
     Prompting -->|Structured Prompt| Generator(generation.py)
-    Generator <-->|LangChain| LLM((Groq: LLaMA 3.1))
+    Generator <-->|LangChain| LLM((Groq LLaMA 3.1))
     Generator -->|Raw SQL Query| Validator(validation_sql.py)
     
     %% Execution
     Validator -->|Validated SQL| DBConnection(mysql_connection.py)
-    DBConnection <-->|Execute & Fetch| MySQL[(ecommerce_db)]
+    DBConnection <-->|Execute and Fetch| MySQL[(ecommerce_db)]
     
     %% Results Back to User
     DBConnection -->|Query Results| App
     App -->|Formatted Output| User
-```
-```
+
